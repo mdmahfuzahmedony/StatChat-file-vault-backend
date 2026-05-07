@@ -1,48 +1,38 @@
-
-if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config();
-}
 import express, { Application, Request, Response } from "express";
 import mongoose from "mongoose";
-import cors from "cors"; // নিশ্চিত হও এই লাইনটি আছে
-import fs from "fs";
-import path from "path";
+import cors from "cors";
 import fileRoutes from "./routes/fileRoutes";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app: Application = express();
 
-// --- CORS সেটআপ (সবার উপরে থাকতে হবে) ---
-app.use(cors({
-  origin: "*", // এটি সব কানেকশন এলাউ করবে
-  methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
-
+// Middleware
+app.use(cors());
 app.use(express.json());
 
-// --- রাউটস ---
+// Routes
 app.use("/files", fileRoutes);
 
-const MONGO_URI = process.env.MONGO_URI as string;
+const MONGO_URI = process.env.MONGO_URI || "";
 
-mongoose
-  .connect(MONGO_URI)
-  .then(() => console.log("✅ MongoDB Connected (TS)"))
-  .catch((err) => console.log("❌ DB Error:", err));
-
-app.get("/", (req: Request, res: Response) => {
-  res.send("File Vault API is running...");
-});
-
-const uploadDir = path.join(__dirname, "uploads");
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
+// MongoDB Connection
+if (MONGO_URI) {
+  mongoose.connect(MONGO_URI)
+    .then(() => console.log("✅ MongoDB Connected"))
+    .catch((err) => console.log("❌ DB Error:", err));
 }
 
-const PORT = 20012;
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+app.get("/", (req: Request, res: Response) => {
+  res.send("VaultFlow API is running smoothly!");
 });
 
+// For Local Development
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 20012;
+  app.listen(PORT, () => console.log(`🚀 Server on http://localhost:${PORT}`));
+}
 
+// Vercel এর জন্য এক্সপোর্ট
 export default app;
