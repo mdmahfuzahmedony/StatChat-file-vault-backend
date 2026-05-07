@@ -1,41 +1,44 @@
-import express, { Application, Request, Response } from 'express';
-import mongoose from 'mongoose';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import fs from 'fs';
-import path from 'path';
-import fileRoutes from './routes/fileRoutes';
-
-
+import dotenv from "dotenv";
 dotenv.config();
+
+import express, { Application, Request, Response } from "express";
+import mongoose from "mongoose";
+import cors from "cors"; // নিশ্চিত হও এই লাইনটি আছে
+import fs from "fs";
+import path from "path";
+import fileRoutes from "./routes/fileRoutes";
+
 const app: Application = express();
 
-// ১. আগে গ্লোবাল মিডলওয়্যার সেট করো
-app.use(cors());
+// --- CORS সেটআপ (সবার উপরে থাকতে হবে) ---
+app.use(cors({
+  origin: "*", // এটি সব কানেকশন এলাউ করবে
+  methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
 app.use(express.json());
 
-// ২. তারপর রাউট সেট করো
-app.use('/files', fileRoutes);
+// --- রাউটস ---
+app.use("/files", fileRoutes);
 
 const MONGO_URI = process.env.MONGO_URI as string;
 
-// MongoDB কানেকশন
-mongoose.connect(MONGO_URI)
-  .then(() => console.log('✅ MongoDB Connected (TS)'))
-  .catch(err => console.log('❌ DB Error:', err));
+mongoose
+  .connect(MONGO_URI)
+  .then(() => console.log("✅ MongoDB Connected (TS)"))
+  .catch((err) => console.log("❌ DB Error:", err));
 
-// বেসিক টেস্ট রাউট
-app.get('/', (req: Request, res: Response) => {
-  res.send('File Vault API is running...');
+app.get("/", (req: Request, res: Response) => {
+  res.send("File Vault API is running...");
 });
 
-// আপলোড ফোল্ডার চেক ও তৈরি
-const uploadDir = path.join(__dirname, 'uploads');
+const uploadDir = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir);
 }
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server is running on port ${PORT}`);
+const PORT = 20012;
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });
