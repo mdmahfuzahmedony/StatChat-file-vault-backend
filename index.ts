@@ -1,6 +1,7 @@
-import dotenv from "dotenv";
-dotenv.config();
 
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
 import express, { Application, Request, Response } from "express";
 import mongoose from "mongoose";
 import cors from "cors"; // নিশ্চিত হও এই লাইনটি আছে

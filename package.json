@@ -3,10 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only server.ts",
-    "build": "tsc",
-    "start": "node dist/server.js"
-  },
+  "build": "tsc",
+  "start": "node dist/index.ts"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
